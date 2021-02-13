@@ -43,6 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define U_CUT KC_CUT
 #define U_UND KC_UNDO
 
+// create integer enumerations for layer names
+// e.g. base is 0, medr is 1 etc.
 enum layers { BASE, MEDR, NAVR, MOUR, NSSL, NSL, FUNL };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -98,28 +100,33 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
   return rotation;
 }
 
-#define L_BASE 0
-#define L_LOWER 2
-#define L_RAISE 4
-#define L_ADJUST 8
-
 void oled_render_layer_state(void) {
     oled_write_P(PSTR("Layer: "), false);
-    switch (layer_state) {
-        case L_BASE:
-            oled_write_ln_P(PSTR("Default"), false);
+    // the `layer_state` variable is 32 bits, each bit represents the on/off status of the layer.
+    //  see: https://beta.docs.qmk.fm/using-qmk/guides/keymap#keymap-layer-status-id-keymap-layer-status
+    // if  want to detect if multiple layers are active, we'd have to add the integer values.
+    // the default keymap uses bitwise operators but this is easier with the enums
+    switch (biton32(layer_state)) {
+        case BASE:
+            oled_write_ln_P(PSTR("BASE"), false);
             break;
-        case L_LOWER:
-            oled_write_ln_P(PSTR("Lower"), false);
+        case NAVR:
+            oled_write_ln_P(PSTR("NAV"), false);
             break;
-        case L_RAISE:
-            oled_write_ln_P(PSTR("Raise"), false);
+        case MOUR:
+            oled_write_ln_P(PSTR("MOUSE"), false);
             break;
-        case L_ADJUST:
-        case L_ADJUST|L_LOWER:
-        case L_ADJUST|L_RAISE:
-        case L_ADJUST|L_LOWER|L_RAISE:
-            oled_write_ln_P(PSTR("Adjust"), false);
+        case MEDR:
+            oled_write_ln_P(PSTR("MEDIA"), false);
+            break;
+        case FUNL:
+            oled_write_ln_P(PSTR("FUNCTION"), false);
+            break;
+        case NSL:
+            oled_write_ln_P(PSTR("NUM SYM"), false);
+            break;
+        case NSSL:
+            oled_write_ln_P(PSTR("SHIFT SYM"), false);
             break;
     }
 }
